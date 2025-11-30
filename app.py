@@ -30,11 +30,13 @@ def save_chats(chats):
 if "chats" not in st.session_state:
     st.session_state.chats = load_chats()
 
-if "active_chat" not in st.session_state:
+if "active_chat" not in st.session_state or not st.session_state.chats:
     cid = str(uuid.uuid4())
-    st.session_state.chats[cid] = {
-        "title": "New Chat",
-        "messages": []
+    st.session_state.chats = {
+        cid: {
+            "title": "New Chat",
+            "messages": []
+        }
     }
     st.session_state.active_chat = cid
     save_chats(st.session_state.chats)
@@ -64,8 +66,15 @@ with st.sidebar:
         save_chats(st.session_state.chats)
         st.rerun()
 
-    if st.button("🗑️ Clear Chat", use_container_width=True):
-        st.session_state.chats[st.session_state.active_chat]["messages"] = []
+    if st.button("🧹 Clear All Chats", use_container_width=True):
+        cid = str(uuid.uuid4())
+        st.session_state.chats = {
+            cid: {
+                "title": "New Chat",
+                "messages": []
+            }
+        }
+        st.session_state.active_chat = cid
         save_chats(st.session_state.chats)
         st.rerun()
 
@@ -97,7 +106,7 @@ st.markdown(
         margin: auto;
     }
 
-    /* Chat bubbles (controlled width) */
+    /* Chat bubbles */
     .bubble {
         padding: 12px 16px;
         border-radius: 8px;
@@ -117,17 +126,17 @@ st.markdown(
         max-width: 620px;
     }
 
-    /* Sidebar inputs unified */
+    /* Sidebar inputs – SOFTER BORDERS */
     section[data-testid="stSidebar"] div[data-baseweb="input"] > div {
         width: 100% !important;
-        border-radius: 4px !important;
+        border-radius: 6px !important;
         background-color: #2b2f3a !important;
-        border: 1px solid #3a3f4d !important;
+        border: 1px solid #444857 !important;
     }
 
     section[data-testid="stSidebar"] div[data-baseweb="input"] input {
         width: 100% !important;
-        border-radius: 4px !important;
+        border-radius: 6px !important;
         background-color: #2b2f3a !important;
         color: #ffffff !important;
         border: none !important;
@@ -144,7 +153,7 @@ st.markdown(
     }
 
     section[data-testid="stSidebar"] button {
-        border-radius: 4px !important;
+        border-radius: 6px !important;
         padding: 10px 12px !important;
         font-weight: 600 !important;
     }
