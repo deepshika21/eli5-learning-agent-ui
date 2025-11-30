@@ -5,7 +5,12 @@ import requests
 N8N_WEBHOOK_URL = "https://deepshika021.app.n8n.cloud/webhook/eli5"
 # ==========================================
 
-st.mabackground-colore>
+
+st.set_page_config(page_title="Understand Easily", layout="centered")
+
+# ---------------------- CSS STYLING ----------------------
+st.markdown("""
+<style>
 /* Page background */
 body, .stApp {
     background-color: #0E0E0E !important;
@@ -77,7 +82,7 @@ with col1:
     
     concept = st.text_area(
         "",
-        placeholder=“Eg:BFS,DFS,Unification.”,
+        placeholder="Eg: BFS, DFS, Unification.",
         height=200
     )
 
@@ -103,10 +108,8 @@ with col1:
     });
     </script>
     """, unsafe_allow_html=True)
-    # ---------------------------------------------------
 
     st.markdown("</div>", unsafe_allow_html=True)
-
 
 # ---------------------- Right Column (Level Dropdown) ----------------------
 with col2:
@@ -119,7 +122,6 @@ with col2:
     )
 
     st.markdown("</div>", unsafe_allow_html=True)
-
 
 # ---------------------- Explain Button ----------------------
 if st.button("Explain", type="primary"):
