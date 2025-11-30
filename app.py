@@ -124,10 +124,8 @@ st.markdown(
         color:#9ca3af;
         font-size:14px;
     }
-    </style>
+    
     """
-        unsafe_allow_html=True
-    )
     /* Search box (st.text_input) – reduce roundness */
     div[data-baseweb="input"] > div {
         border-radius: 6px !important;
@@ -144,6 +142,12 @@ st.markdown(
         box-shadow: none !important;
         border: 1px solid #6b7280 !important;
     }
+    </style>
+    
+    """
+        unsafe_allow_html=True
+    )
+    
 
 # ---------- HEADER ----------
 st.markdown(
@@ -205,6 +209,7 @@ st.markdown(
     "<p class='caption'>Built to understand, not memorise.</p>",
     unsafe_allow_html=True
 )
+
 
 
 
