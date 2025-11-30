@@ -193,13 +193,14 @@ if user_input:
 
     with st.spinner("Explaining…"):
         try:
-            response = requests.post(
+            requests.post(
                 N8N_WEBHOOK_URL,
                 json={
                     "concept": user_input,
                     "level": level,
                     "exam_mode": exam_mode
-                },
+                }
+            ),
                 timeout=60
             )
             output = response.json().get("output", "")
@@ -212,3 +213,4 @@ if user_input:
 
 # ---------- FOOTER ----------
 st.markdown("<p class='caption'>Built to understand, not memorise.</p>", unsafe_allow_html=True)
+
