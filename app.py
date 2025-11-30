@@ -28,10 +28,13 @@ if st.button("Explain"):
             )
 
         if response.status_code == 200:
-            data = response.json()   # parse JSON
+            data = response.json()                # Parse JSON
+            explanation = data.get("output", "")  # Extract explanation text
+        
             st.markdown("### 📘 Explanation")
-            st.markdown(data["output"])  # show only the explanation
-
+            st.markdown(explanation)
         else:
-            st.error(f"Error: {response.status_code}")
+            st.error(f"Error {response.status_code}: {response.text}")
+
+
 
