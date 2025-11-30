@@ -5,127 +5,147 @@ import requests
 N8N_WEBHOOK_URL = "https://deepshika021.app.n8n.cloud/webhook/eli5"
 # ==========================================
 
+st.set_page_config(
+    page_title="Friend for Exam",
+    page_icon="📘",
+    layout="centered"
+)
 
-st.set_page_config(page_title="Understand Easily", layout="centered")
+# ---------- SESSION STATE ----------
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# ---------------------- CSS STYLING ----------------------
-st.markdown("""
-<style>
-/* Page background */
-body, .stApp {
-    background-color: #0E0E0E !important;
-    color: white !important;
-}
+# ---------- CSS (CHATGPT-STYLE, DARK, CALM) ----------
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: #0d0f16;
+        color: #ffffff;
+    }
 
-/* Input container styling */
-.big-box {
-    background-color: #1A1A1A;
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 20px;
-}
+    .chat-container {
+        max-width: 900px;
+        margin: auto;
+        padding-top: 40px;
+    }
 
-/* Titles */
-h3 {
-    color: white !important;
-}
+    .message {
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 16px;
+        line-height: 1.6;
+        font-size: 16px;
+        white-space: pre-wrap;
+    }
 
-/* Explain Button Styling */
-.stButton > button {
-    width: 100%;
-    background-color: #4A8BFF;
-    color: white;
-    padding: 12px;
-    border-radius: 12px;
-    border: none;
-    font-size: 18px;
-    font-weight: bold;
-}
+    .user {
+        background-color: #2b2f3a;
+    }
 
-.stButton > button:hover {
-    background-color: #1A6DFF;
-}
+    .assistant {
+        background-color: #1c1f29;
+    }
 
-/* Disable typing in Selectbox */
-div[data-baseweb="select"] input {
-    pointer-events: none !important;
-    caret-color: transparent !important;
-}
+    textarea {
+        background: #2b2f3a !important;
+        color: #ffffff !important;
+        border: 1px solid #3a3f4d !important;
+        border-radius: 8px !important;
+        font-size: 16px !important;
+    }
 
-/* Dropdown background dark */
-div[data-baseweb="select"] {
-    background-color: #1A1A1A !important;
-    color: white !important;
-}
+    textarea:focus {
+        outline: none !important;
+        border: 1px solid #6b7280 !important;
+    }
 
-/* Dropdown text color */
-div[data-baseweb="select"] * {
-    color: white !important;
-}
+    button {
+        background: #ffffff !important;
+        color: #000000 !important;
+        font-weight: bold !important;
+        border-radius: 6px !important;
+        padding: 10px 20px !important;
+        margin-top: 6px !important;
+    }
 
-/* Dropdown options menu */
-ul[role="listbox"] {
-    background-color: #1A1A1A !important;
-}
-</style>
-""", unsafe_allow_html=True)
+    .footer {
+        text-align: center;
+        color: #9ca3af;
+        margin-top: 30px;
+        font-size: 14px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
-# ---------------------- UI LAYOUT ----------------------
-st.markdown("<h1 style='text-align:center; color:white;'>Concept Explainer</h1>", unsafe_allow_html=True)
+# ---------- HEADER ----------
+st.markdown(
+    "<h2 style='text-align:center;'>📘 Friend for Exam</h2>"
+    "<p style='text-align:center; color:#b8b9c4;'>Ask. Understand. Remember.</p>",
+    unsafe_allow_html=True
+)
 
-col1, col2 = st.columns([2, 1])
+st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
 
-# ---------------------- Left Column (Concept Box) ----------------------
-with col1:
-    st.markdown("<div class='big-box'>", unsafe_allow_html=True)
-    st.markdown("### Concept:")
-    
-    concept = st.text_area(
-        "",
-        placeholder="Eg: BFS, DFS, Unification.",
-        height=200
+# ---------- CHAT HISTORY ----------
+for m in st.session_state.messages:
+    role_class = "user" if m["role"] == "user" else "assistant"
+    st.markdown(
+        f"<div class='message {role_class}'>{m['content']}</div>",
+        unsafe_allow_html=True
     )
 
-    # --------------- ENTER KEY FUNCTION ---------------
-    st.markdown("""
-    <script>
-    document.addEventListener("keydown", function(e) {
-        const ta = document.querySelector("textarea");
-        if (document.activeElement === ta) {
-
-            // Shift + Enter = allow newline
-            if (e.key === "Enter" && e.shiftKey) {
-                return;
-            }
-
-            // Enter = click Explain button
-            if (e.key === "Enter") {
-                e.preventDefault();
-                const btn = window.parent.document.querySelector('button[kind="primary"]');
-                if (btn) btn.click();
-            }
-        }
-    });
-    </script>
-    """, unsafe_allow_html=True)
-
-    st.markdown("</div>", unsafe_allow_html=True)
-
-# ---------------------- Right Column (Level Dropdown) ----------------------
-with col2:
-    st.markdown("<div class='big-box'>", unsafe_allow_html=True)
-    st.markdown("### Your Level:")
-
+# ---------- INPUT ----------
+with st.form("chat_form", clear_on_submit=True):
+    user_input = st.text_area(
+        "",
+        placeholder="Ask a concept or follow-up question...",
+        height=80
+    )
     level = st.selectbox(
-        "",
-        ["School Student", "College Student", "Advanced"]
+        "Level",
+        ["School Student", "College Student", "Beginner", "Advanced"]
+    )
+    send = st.form_submit_button("Explain")
+
+# ---------- ACTION ----------
+if send and user_input.strip():
+    # Add user message
+    st.session_state.messages.append(
+        {"role": "user", "content": user_input}
     )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    with st.spinner("Thinking like a good teacher…"):
+        response = requests.post(
+            N8N_WEBHOOK_URL,
+            json={
+                "concept": user_input,
+                "level": level,
+                "previous_context": (
+                    st.session_state.messages[-2]["content"]
+                    if len(st.session_state.messages) > 1 else ""
+                )
+            },
+            timeout=60
+        )
 
-# ---------------------- Explain Button ----------------------
-if st.button("Explain", type="primary"):
-    if concept.strip() == "":
-        st.warning("Please enter a concept first!")
-    else:
-        st.success(f"Explaining *{concept}* for *{level}*...")
+        if response.status_code == 200:
+            explanation = response.json().get("output", "")
+        else:
+            explanation = "Something went wrong."
+
+    # Add assistant reply
+    st.session_state.messages.append(
+        {"role": "assistant", "content": explanation}
+    )
+
+    st.experimental_rerun()
+
+st.markdown("</div>", unsafe_allow_html=True)
+
+st.markdown(
+    "<div class='footer'>Built to understand, not memorise.</div>",
+    unsafe_allow_html=True
+)
