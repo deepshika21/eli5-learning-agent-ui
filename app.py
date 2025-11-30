@@ -14,7 +14,7 @@ st.set_page_config(
 # ---------- HEADER ----------
 st.markdown(
     """
-    <h1 style='text-align: center;'>🧠 Explain It Like I'm 5</h1>
+    <h1 style='text-align: center;'>ELI 5</h1>
     <p style='text-align: center; color: gray;'>
     Learn concepts clearly — from child-level intuition to exam-ready answers.
     </p>
@@ -93,3 +93,4 @@ st.markdown(
     "<p style='text-align:center; color:gray;'>Built to learn, not to memorise.</p>",
     unsafe_allow_html=True
 )
+
