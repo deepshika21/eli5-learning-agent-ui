@@ -23,11 +23,20 @@ if "active_chat" not in st.session_state:
 
 # ---------- SIDEBAR ----------
 with st.sidebar:
-    st.markdown("## 🗪 Chats")
+    st.markdown("## 💬 Chats")
 
     search = st.text_input("Search chats")
 
-    if st.button("✚ New Chat"):
+    st.divider()
+
+    level = st.selectbox(
+        "🎯 Explanation Level",
+        ["Beginner", "School Student", "College Student", "Advanced"]
+    )
+
+    st.divider()
+
+    if st.button("➕ New Chat"):
         new_id = str(uuid.uuid4())
         st.session_state.chats[new_id] = []
         st.session_state.active_chat = new_id
@@ -91,7 +100,7 @@ st.markdown(
 
     .caption {
         text-align:center;
-        margin-top: 24px;
+        margin-top: 20px;
         color:#9ca3af;
         font-size:14px;
     }
@@ -125,13 +134,7 @@ for msg in st.session_state.chats[st.session_state.active_chat]:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- LEVEL SELECT ----------
-level = st.selectbox(
-    "Level",
-    ["Beginner", "School Student", "College Student", "Advanced"]
-)
-
-# ---------- CHAT INPUT (ENTER WORKS HERE NATIVELY) ----------
+# ---------- CHAT INPUT ----------
 user_input = st.chat_input("Ask a concept or follow-up question…")
 
 # ---------- BACKEND CALL ----------
@@ -166,4 +169,3 @@ st.markdown(
     "<p class='caption'>Built to understand, not memorise.</p>",
     unsafe_allow_html=True
 )
-
