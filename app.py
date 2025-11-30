@@ -1,185 +1,212 @@
 import streamlit as st
 import requests
-import uuid
 
-# ================= CONFIG =================
+# =============== CONFIG ===================
 N8N_WEBHOOK_URL = "https://deepshika021.app.n8n.cloud/webhook/eli5"
-# ==========================================
+# =========================================
 
 st.set_page_config(
     page_title="Understand Easily",
-    page_icon="💡",
-    layout="wide"
+    page_icon="🧠",
+    layout="centered"
 )
 
 # ---------- SESSION STATE ----------
-if "messages" not in st.session_state:
-    st.session_state.messages = {}
+if "chats" not in st.session_state:
+    st.session_state.chats = {"Chat 1": []}
+    st.session_state.current_chat = "Chat 1"
 
-if "current_chat" not in st.session_state:
-    st.session_state.current_chat = str(uuid.uuid4())  # unique chat ID
+if "chat_count" not in st.session_state:
+    st.session_state.chat_count = 1
 
-if st.session_state.current_chat not in st.session_state.messages:
-    st.session_state.messages[st.session_state.current_chat] = []
-
-# ---------- SIDEBAR ----------
-with st.sidebar:
-    st.markdown("## 💬 Chats")
-
-    # Search chats
-    search = st.text_input("Search chats")
-
-    # New Chat button
-    if st.button("➕ New Chat"):
-        new_id = str(uuid.uuid4())
-        st.session_state.current_chat = new_id
-        st.session_state.messages[new_id] = []
-        st.experimental_rerun()
-
-    # Chat list
-    for chat_id, msgs in st.session_state.messages.items():
-        if msgs:
-            title = msgs[0]["content"][:25] + "..."
-        else:
-            title = "Empty Chat"
-
-        if search.lower() in title.lower():
-            if st.button(title):
-                st.session_state.current_chat = chat_id
-                st.experimental_rerun()
-
-
-# ---------- CUSTOM CSS ----------
+# ---------- CSS ----------
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@300;400;500;700&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Helvetica Neue', sans-serif !important;
+    * {
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     }
 
-    header[data-testid="stHeader"] {display: none;}
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-
-    .stApp { background-color: #0d0f16; }
-
-    .chat-box {
-        max-width: 900px;
-        margin: auto;
-        padding-top: 20px;
+    .stApp {
+        background-color: #0d0f16;
+        color: #ffffff;
     }
 
-    .bubble {
-        padding: 14px 18px;
-        border-radius: 10px;
-        margin-bottom: 16px;
-        line-height: 1.6;
-        white-space: pre-wrap;
-        font-size: 16px;
-    }
-
-    .user { background-color: #2b2f3a; }
-    .assistant { background-color: #1c1f29; }
-
-    textarea {
-        background: #2b2f3a !important;
-        color: #ffffff !important;
-        border-radius: 8px !important;
-        border: 1px solid #3a3f4d !important;
-        font-size: 16px !important;
-    }
-    textarea:focus {
-        border: 1px solid #6b7280 !important;
-    }
-
-    button[kind="primary"] {
-        background-color: #bcdcff !important;
-        color: #000 !important;
-        font-weight: bold !important;
-        border-radius: 6px !important;
-        padding: 10px 24px !important;
+    .title {
+        text-align: center;
+        font-size: 42px;
+        font-weight: 600;
+        margin-top: 20px;
     }
 
     .caption {
-        text-align:center;
-        margin-top: 30px;
-        color:#9ca3af;
-        font-size:14px;
+        text-align: center;
+        color: #b8b9c4;
+        font-size: 17px;
+        margin-bottom: 40px;
+    }
+
+    .chat-container {
+        max-width: 900px;
+        margin: auto;
+        padding-top: 10px;
+    }
+
+    .message {
+        padding: 14px 18px;
+        border-radius: 10px;
+        margin-bottom: 14px;
+        line-height: 1.6;
+        font-size: 16px;
+        white-space: pre-wrap;
+    }
+
+    .user {
+        background-color: #2b2f3a;
+    }
+
+    .assistant {
+        background-color: #1c1f29;
+    }
+
+    textarea {
+        background: #2b2f3a !important;
+        border: 1px solid #3a3f4d !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+        font-size: 16px !important;
+    }
+
+    textarea:focus {
+        outline: none !important;
+        border: 1px solid #6b7280 !important;
+    }
+
+    div[data-baseweb="select"] > div {
+        background: #2b2f3a !important;
+        border: 1px solid #3a3f4d !important;
+        color: #ffffff !important;
+        border-radius: 8px !important;
+    }
+
+    button {
+        background: #dbeafe !important;   /* soft light blue */
+        color: #000000 !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+        padding: 10px 22px !important;
+        margin-top: 6px !important;
+    }
+
+    .sidebar-title {
+        font-weight: 600;
+        margin-bottom: 10px;
     }
     </style>
     """,
     unsafe_allow_html=True
 )
 
+# ---------- SIDEBAR: CHATS ----------
+st.sidebar.markdown("<div class='sidebar-title'>Chats</div>", unsafe_allow_html=True)
+search = st.sidebar.text_input("Search chats")
+
+for chat_name in st.session_state.chats:
+    if search.lower() in chat_name.lower():
+        if st.sidebar.button(chat_name):
+            st.session_state.current_chat = chat_name
+
+if st.sidebar.button("+ New Chat"):
+    st.session_state.chat_count += 1
+    new_name = f"Chat {st.session_state.chat_count}"
+    st.session_state.chats[new_name] = []
+    st.session_state.current_chat = new_name
+
 # ---------- HEADER ----------
+st.markdown("<div class='title'>🧠 Understand Easily</div>", unsafe_allow_html=True)
 st.markdown(
-    "<h2 style='text-align:center;'>💡 Understand Easily</h2>"
-    "<p style='text-align:center; color:#b8b9c4;'>Learning made simple, one explanation at a time.</p>",
+    "<div class='caption'>A calm space to ask questions, understand concepts, and remember them for exams.</div>",
     unsafe_allow_html=True
 )
 
-# ---------- CHAT DISPLAY ----------
-st.markdown("<div class='chat-box'>", unsafe_allow_html=True)
+st.markdown("<div class='chat-container'>", unsafe_allow_html=True)
 
-for msg in st.session_state.messages[st.session_state.current_chat]:
-    role_class = "user" if msg["role"] == "user" else "assistant"
-    st.markdown(f"<div class='bubble {role_class}'>{msg['content']}</div>", unsafe_allow_html=True)
+chat = st.session_state.chats[st.session_state.current_chat]
+
+# ---------- SHOW CHAT HISTORY ----------
+for msg in chat:
+    cls = "user" if msg["role"] == "user" else "assistant"
+    st.markdown(
+        f"<div class='message {cls}'>{msg['content']}</div>",
+        unsafe_allow_html=True
+    )
+
+st.markdown("---")
+
+# ---------- INPUT AREA (NO FORM) ----------
+user_input = st.text_area(
+    "",
+    placeholder="Ask a concept or follow-up question…",
+    height=80,
+    key="chat_input"
+)
+
+level = st.selectbox(
+    "Level",
+    ["School Student", "College Student", "Beginner", "Advanced"],
+    key="level_select"
+)
+
+explain_clicked = st.button("Explain")
+
+# ---------- HANDLE SEND ----------
+if explain_clicked and user_input.strip():
+    # Append user message
+    chat.append({"role": "user", "content": user_input})
+
+    with st.spinner("Explaining carefully…"):
+        try:
+            response = requests.post(
+                N8N_WEBHOOK_URL,
+                json={
+                    "concept": user_input,
+                    "level": level,
+                    "previous_context": chat[-2]["content"] if len(chat) > 1 else ""
+                },
+                timeout=60
+            )
+            if response.status_code == 200:
+                reply = response.json().get("output", "")
+            else:
+                reply = f"Something went wrong (status {response.status_code})."
+        except Exception as e:
+            reply = f"Request failed: {e}"
+
+    chat.append({"role": "assistant", "content": reply})
+    st.rerun()
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- INPUT ----------
-with st.form("chat_form", clear_on_submit=True):
-    user_input = st.text_area(
-        "",
-        placeholder="Ask a concept or follow-up question...",
-        height=80
-    )
-    level = st.selectbox(
-        "Level",
-        ["Beginner", "School Student", "College Student", "Advanced"]
-    )
-
-    submitted = st.form_submit_button("Explain")
-
-# ---------- ENTER KEY TO SUBMIT ----------
+# ---------- JS: ENTER = EXPLAIN, SHIFT+ENTER = NEW LINE ----------
 st.markdown(
     """
     <script>
-    const textarea = parent.document.querySelector('textarea');
-    textarea.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            const btn = parent.document.querySelector('button[kind="primary"]');
-            if (btn) btn.click();
-        }
-    });
+    const textareas = parent.document.querySelectorAll("textarea");
+    if (textareas.length > 0) {
+        const ta = textareas[textareas.length - 1];  // last textarea (chat input)
+        ta.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                const buttons = parent.document.querySelectorAll("button");
+                buttons.forEach(btn => {
+                    if (btn.innerText.trim() === "Explain") {
+                        btn.click();
+                    }
+                });
+            }
+        });
+    }
     </script>
     """,
     unsafe_allow_html=True
 )
-
-# ---------- BACKEND CALL ----------
-if submitted and user_input.strip():
-    chat_id = st.session_state.current_chat
-
-    st.session_state.messages[chat_id].append({"role": "user", "content": user_input})
-
-    with st.spinner("Explaining..."):
-        response = requests.post(
-            N8N_WEBHOOK_URL,
-            json={"concept": user_input, "level": level},
-            timeout=60
-        )
-
-        if response.status_code == 200:
-            output = response.json().get("output", "")
-        else:
-            output = "Something went wrong."
-
-    st.session_state.messages[chat_id].append({"role": "assistant", "content": output})
-    st.experimental_rerun()
-
-# ---------- FOOTER ----------
-st.markdown("<p class='caption'>Learning made simple, one explanation at a time.</p>", unsafe_allow_html=True)
