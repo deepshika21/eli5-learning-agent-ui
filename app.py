@@ -18,9 +18,10 @@ st.markdown(
     <style>
     /* Page background */
     .stApp {
-        background-color: #0f172a;
+        background-color: #020617;  /* very dark slate */
         color: #e5e7eb;
     }
+
 
     /* General text */
     h1, h2, h3, h4, h5, h6, p, label {
@@ -29,7 +30,7 @@ st.markdown(
 
     /* Textarea + input */
     textarea, input {
-        background-color: #1f2933 !important;
+        background-color: #020617 !important;
         color: #e5e7eb !important;
         border-radius: 8px !important;
         border: 1px solid #6b7280 !important;
@@ -168,3 +169,4 @@ st.markdown(
     "<p style='text-align:center; color:#6b7280;'>Built to understand, not memorise.</p>",
     unsafe_allow_html=True
 )
+
