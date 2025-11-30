@@ -6,7 +6,7 @@ N8N_WEBHOOK_URL = "https://deepshika021.app.n8n.cloud/webhook/eli5"
 # ==========================================
 
 st.set_page_config(
-    page_title="FRIEND FOR EXAM",
+    page_title="Understand Easily",
     page_icon="📘",
     layout="wide"
 )
@@ -102,7 +102,7 @@ st.markdown(
 # ---------- CONTENT ----------
 st.markdown('<div class="container">', unsafe_allow_html=True)
 
-st.markdown("<h1>Explain It Like I’m 5</h1>", unsafe_allow_html=True)
+st.markdown("<h1>Understand Easily</h1>", unsafe_allow_html=True)
 st.markdown(
     "<p class='subtitle'>Clear explanations — from child-level intuition to exam-ready understanding</p>",
     unsafe_allow_html=True
@@ -150,3 +150,4 @@ if st.button("Explain"):
 # ---------- FOOTER ----------
 st.markdown("<footer>Built to understand, not memorise.</footer>", unsafe_allow_html=True)
 st.markdown("</div>", unsafe_allow_html=True)
+
