@@ -43,37 +43,30 @@ if "active_chat" not in st.session_state or not st.session_state.chats:
 
 # ---------- SIDEBAR ----------
 with st.sidebar:
-    st.markdown("## 🗪 Chats")
+    st.markdown("## 💬 Chats")
 
-    search = st.text_input(
-        "Search chats",
-        placeholder="Search…",
-        key="search_box"
-    )
+    search = st.text_input("Search chats", placeholder="Search…")
 
     level = st.selectbox(
-        "Level",
+        "Explanation Level",
         ["Beginner", "School Student", "College Student", "Advanced"]
     )
 
-    if st.button("✚ New Chat", use_container_width=True):
+    exam_mode = st.selectbox(
+        "📘 Exam Mode",
+        ["Normal", "2-mark answer", "5-mark answer"]
+    )
+
+    if st.button("➕ New Chat", use_container_width=True):
         cid = str(uuid.uuid4())
-        st.session_state.chats[cid] = {
-            "title": "New Chat",
-            "messages": []
-        }
+        st.session_state.chats[cid] = {"title": "New Chat", "messages": []}
         st.session_state.active_chat = cid
         save_chats(st.session_state.chats)
         st.rerun()
 
-    if st.button("󠁝󠁝🗑 Clear All Chats", use_container_width=True):
+    if st.button("🧹 Clear All Chats", use_container_width=True):
         cid = str(uuid.uuid4())
-        st.session_state.chats = {
-            cid: {
-                "title": "New Chat",
-                "messages": []
-            }
-        }
+        st.session_state.chats = {cid: {"title": "New Chat", "messages": []}}
         st.session_state.active_chat = cid
         save_chats(st.session_state.chats)
         st.rerun()
@@ -81,9 +74,8 @@ with st.sidebar:
     st.divider()
 
     for cid, chat in st.session_state.chats.items():
-        title = chat["title"]
-        if search.lower() in title.lower():
-            if st.button(title, key=cid, use_container_width=True):
+        if search.lower() in chat["title"].lower():
+            if st.button(chat["title"], key=cid, use_container_width=True):
                 st.session_state.active_chat = cid
                 st.rerun()
 
@@ -101,12 +93,9 @@ st.markdown(
 
     .stApp { background-color: #0d0f16; }
 
-    .container {
-        max-width: 1000px;
-        margin: auto;
-    }
+    .container { max-width: 1000px; margin: auto; }
 
-    /* Chat bubbles */
+    /* Chat bubbles – BROADER */
     .bubble {
         padding: 12px 16px;
         border-radius: 8px;
@@ -118,36 +107,29 @@ st.markdown(
 
     .user {
         background-color: #2b2f3a;
-        max-width: 900px;
+        max-width: 800px;
     }
 
     .assistant {
         background-color: #1c1f29;
-        max-width: 620px;
+        max-width: 720px;
     }
 
-    /* Sidebar inputs – SOFTER BORDERS */
+    /* Sidebar inputs – soft borders */
     section[data-testid="stSidebar"] div[data-baseweb="input"] > div {
-        width: 100% !important;
         border-radius: 6px !important;
         background-color: #2b2f3a !important;
         border: 1px solid #444857 !important;
     }
 
     section[data-testid="stSidebar"] div[data-baseweb="input"] input {
-        width: 100% !important;
-        border-radius: 6px !important;
         background-color: #2b2f3a !important;
         color: #ffffff !important;
         border: none !important;
         padding: 10px 12px !important;
-        box-shadow: none !important;
     }
 
-    section[data-testid="stSidebar"] div[data-baseweb="input"]:hover > div {
-        border: 1px solid #6b7280 !important;
-    }
-
+    section[data-testid="stSidebar"] div[data-baseweb="input"]:hover > div,
     section[data-testid="stSidebar"] div[data-baseweb="input"]:has(input:focus) > div {
         border: 1px solid #6b7280 !important;
     }
@@ -181,7 +163,7 @@ st.markdown(
     <div class="container">
         <h2 style="text-align:center;">💡 Understand Easily</h2>
         <p style="text-align:center; color:#b8b9c4;">
-            Learning made simple, one explanation at a time.
+            Learn concepts clearly. Answer exams confidently.
         </p>
     </div>
     """,
@@ -195,17 +177,14 @@ chat = st.session_state.chats[st.session_state.active_chat]
 
 for msg in chat["messages"]:
     cls = "user" if msg["role"] == "user" else "assistant"
-    st.markdown(
-        f"<div class='bubble {cls}'>{msg['content']}</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"<div class='bubble {cls}'>{msg['content']}</div>", unsafe_allow_html=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-# ---------- CHAT INPUT ----------
-user_input = st.chat_input("Ask a concept or follow-up question…")
+# ---------- INPUT ----------
+user_input = st.chat_input("Ask a concept or exam question…")
 
-# ---------- BACKEND CALL ----------
+# ---------- BACKEND ----------
 if user_input:
     if chat["title"] == "New Chat":
         chat["title"] = user_input[:32] + ("…" if len(user_input) > 32 else "")
@@ -218,11 +197,12 @@ if user_input:
                 N8N_WEBHOOK_URL,
                 json={
                     "concept": user_input,
-                    "level": level
+                    "level": level,
+                    "exam_mode": exam_mode
                 },
                 timeout=60
             )
-            output = response.json().get("output", "") if response.status_code == 200 else "Something went wrong."
+            output = response.json().get("output", "")
         except Exception as e:
             output = f"Request failed: {e}"
 
@@ -231,9 +211,4 @@ if user_input:
     st.rerun()
 
 # ---------- FOOTER ----------
-st.markdown(
-    "<p class='caption'>Built to understand, not memorise.</p>",
-    unsafe_allow_html=True
-)
-
-
+st.markdown("<p class='caption'>Built to understand, not memorise.</p>", unsafe_allow_html=True)
