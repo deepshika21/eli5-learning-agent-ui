@@ -5,7 +5,7 @@ import json
 import os
 
 # ================= CONFIG =================
-N8N_WEBHOOK_URL = "https://deepshika021.app.n8n.cloud/webhook/Understand-easily"
+N8N_WEBHOOK_URL = "https://deepshika021.app.n8n.cloud/webhook/eli5"
 DATA_FILE = "chats.json"
 # ==========================================
 
@@ -212,6 +212,7 @@ if user_input:
 
 # ---------- FOOTER ----------
 st.markdown("<p class='caption'>Built to understand, not memorise.</p>", unsafe_allow_html=True)
+
 
 
 
