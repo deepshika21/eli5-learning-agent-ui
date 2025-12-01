@@ -43,7 +43,7 @@ if "active_chat" not in st.session_state or not st.session_state.chats:
 
 # ---------- SIDEBAR ----------
 with st.sidebar:
-    st.markdown("## 💬 Chats")
+    st.markdown("## 🗪 Chats")
 
     search = st.text_input("Search chats", placeholder="Search…")
 
@@ -53,18 +53,18 @@ with st.sidebar:
     )
 
     exam_mode = st.selectbox(
-        "📘 Exam Mode",
+        "Exam Mode",
         ["Normal", "2-mark answer", "5-mark answer"]
     )
 
-    if st.button("➕ New Chat", use_container_width=True):
+    if st.button("✚ New Chat", use_container_width=True):
         cid = str(uuid.uuid4())
         st.session_state.chats[cid] = {"title": "New Chat", "messages": []}
         st.session_state.active_chat = cid
         save_chats(st.session_state.chats)
         st.rerun()
 
-    if st.button("🧹 Clear All Chats", use_container_width=True):
+    if st.button("🗑 Clear All Chats", use_container_width=True):
         cid = str(uuid.uuid4())
         st.session_state.chats = {cid: {"title": "New Chat", "messages": []}}
         st.session_state.active_chat = cid
@@ -212,6 +212,7 @@ if user_input:
 
 # ---------- FOOTER ----------
 st.markdown("<p class='caption'>Built to understand, not memorise.</p>", unsafe_allow_html=True)
+
 
 
 
